@@ -68,6 +68,10 @@ function ProjectsPage() {
                         <p>
                             <span className="icon-alert inverse"></span>
                             {error}
+                            <button onClick={() => {
+                            setError(undefined);
+                            setLoading(true); 
+                        }}>Try again</button>
                         </p>
                     </section>
                 </div>
