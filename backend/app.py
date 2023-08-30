@@ -2,6 +2,11 @@ from flask import Flask, Blueprint, request, jsonify
 from flask_cors import CORS
 import json
 
+from database import db, migrate
+from config import Config
+
+from apps.projects.models import Project
+
 api = Blueprint('api', 'api')
 
 @api.route('/projects', methods=['GET', 'POST', 'DELETE'])
@@ -47,13 +52,19 @@ def update_project(id: int):
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = 'some random key'
+    app.config['SQLALCHEMY_DATABASE_URI'] = Config.DATABASE_URI
+    app.config['SECRET_KEY'] = Config.SECRET_KEY
+
+    db.init_app(app)
+    migrate.init_app(app, db, directory='migrations', command='db')
+
     CORS(app)
 
-    app.register_blueprint(api)
+    from apps.projects.resources import projects as projects_api
+    app.register_blueprint(projects_api)
 
     return app
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True)
+    app.run(debug=Config.FLASK_DEBUG)

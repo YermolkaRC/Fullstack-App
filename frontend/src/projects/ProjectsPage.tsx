@@ -12,6 +12,10 @@ function ProjectsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [loadedAll, setLoadedAll] = useState(false);
 
+    useEffect(() => {
+        setLoading(true);
+    }, [])
+
     function loadMoreProjects () {
         if (loadedAll) {
             setLoading(false);
