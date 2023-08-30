@@ -3,16 +3,20 @@ import { MOCK_PROJECTS } from "./MockProjects";
 import { Project } from "./Project";
 import ProjectList from "./ProjectList";
 import { projectAPI } from "./projectAPI";
+import useInfiniteScroll from "../hooks/UseInfiniteScroll";
 
 function ProjectsPage() {
     const [projects, setProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useInfiniteScroll(loadMoreProjects);
     const [error, setError] = useState<string | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState(1);
     const [loadedAll, setLoadedAll] = useState(false);
 
-    useEffect(() => {
-        setLoading(true);
+    function loadMoreProjects () {
+        if (loadedAll) {
+            setLoading(false);
+            return;
+        }
         projectAPI.get(currentPage)
             .then((data) => {
                 setError(undefined);
@@ -26,6 +30,7 @@ function ProjectsPage() {
                 } else {
                     setProjects((projects) => [...projects, ...data]);
                 }
+                setCurrentPage((prevPage) => prevPage + 1);
             })
             .catch((e) => {
                 setLoading(false);
@@ -33,17 +38,7 @@ function ProjectsPage() {
                     setError(e.message);
                 }
             })
-    }, [currentPage])
-    useEffect(() => {
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [])
-    function handleScroll() {
-        if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.scrollHeight) return;
-        if (loading || error || loadedAll) return;
-        setCurrentPage((prevPage) => prevPage + 1);
-        console.log('Fetching')
-    }
+        }
     const saveProject = (project: Project) => {
         projectAPI.put(project)
             .then((updatedProject) => {
