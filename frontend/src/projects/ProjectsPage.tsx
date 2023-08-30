@@ -9,6 +9,7 @@ function ProjectsPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState(1);
+    const [loadedAll, setLoadedAll] = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -16,6 +17,10 @@ function ProjectsPage() {
             .then((data) => {
                 setError(undefined);
                 setLoading(false);
+                if (data.length === 0) {
+                    setLoadedAll(true);
+                    return;
+                }
                 if (currentPage === 1) {
                     setProjects(data);
                 } else {
@@ -29,9 +34,15 @@ function ProjectsPage() {
                 }
             })
     }, [currentPage])
-
-    const handleMoreClick = () => {
-        setCurrentPage((currentPage) => currentPage + 1);
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [])
+    function handleScroll() {
+        if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.scrollHeight) return;
+        if (loading || error || loadedAll) return;
+        setCurrentPage((prevPage) => prevPage + 1);
+        console.log('Fetching')
     }
     const saveProject = (project: Project) => {
         projectAPI.put(project)
@@ -64,17 +75,6 @@ function ProjectsPage() {
             </div>
         )}
         <ProjectList projects={projects} onSave={saveProject} />
-        {!loading && !error && (
-            <div className="row">
-                <div className="col-sm-12">
-                    <div className="button-group fluid">
-                        <button className="button default" onClick={handleMoreClick}>
-                            More...
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )}
         {loading && (
             <div className="center-page">
                 <span className="spinner primary"></span>
