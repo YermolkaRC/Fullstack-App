@@ -5,6 +5,8 @@ import ProjectsPage from './projects/ProjectsPage';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import HomePage from './home/HomePage';
 import ProjectPage from './projects/ProjectPage';
+import LoginPage from './auth/LoginPage';
+import RegisterPage from './auth/RegisterPage';
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
           <Route path='/' element={<HomePage />} />
           <Route path='/projects/:id' element={<ProjectPage />} />
           <Route path='/projects' element={<ProjectsPage />} />
+          <Route path='/login' element={<LoginPage />} />
+          <Route path='/register' element={<RegisterPage />} />
         </Routes>
       </div>
     </Router>
